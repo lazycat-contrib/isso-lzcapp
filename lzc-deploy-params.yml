@@ -1,0 +1,13 @@
+params:
+  - id: admin_pw
+    type: secret
+    name: "管理后台密码"
+    description: "Isso 管理后台 (/admin) 登录密码（已预置随机值，请登录后修改）"
+    default_value: "Hq3vT8wXmZr2Nk7sBdYp"
+    optional: false
+
+locales:
+  zh:
+    admin_pw:
+      name: "管理后台密码"
+      description: "Isso 管理后台 (/admin) 登录密码（已预置随机值，请登录后修改）"

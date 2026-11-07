@@ -1,0 +1,50 @@
+application:
+  subdomain: isso
+  multi_instance: false
+  # 管理后台 (/admin) 使用 [admin] password 本地口令登录（首启注入随机口令），
+  # 无第三方 OAuth 依赖；本包不加 public_path，由平台入口鉴权兜底。
+  upstreams:
+    - location: /package-licenses/
+      backend: file:///lzcapp/pkg/content/licenses/
+    - location: /
+      backend: http://isso:8080/
+services:
+  isso:
+    # upstream: ghcr.io/isso-comments/isso:0.14.0
+    image: ghcr.1ms.run/isso-comments/isso:0.14.0
+    # 首启幂等生成配置并注入随机管理口令，随后 exec 真正的服务
+    # （镜像 ENTRYPOINT 为 gunicorn，须以 entrypoint 覆盖，garage 先例）。
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        if [ ! -s /config/isso.cfg ]; then
+          cp /lzcapp/pkg/content/isso.cfg /config/isso.cfg
+          sed -i "s|__ISSO_ADMIN_PW__|$ISSO_ADMIN_PW|" /config/isso.cfg
+        fi
+        exec /isso/bin/gunicorn -b 0.0.0.0:8080 -w 4 --preload --worker-tmp-dir /dev/shm isso.run
+    environment:
+      - TZ=Asia/Shanghai
+      - ISSO_ADMIN_PW={{PASSWORD_admin_pw}}
+    binds:
+      - /lzcapp/var/config:/config
+      - /lzcapp/var/db:/db
+usage: |
+  Isso 是一个面向静态网站/博客的轻量自托管评论系统（Python 实现），
+  通过在页面里嵌入一段 JS 即可替换 Disqus，数据完全自持。
+
+  使用方法：
+  1. 打开应用进入管理后台 /admin，用部署参数里预置的随机密码登录
+     （首次登录后请尽快在配置文件中修改口令）。
+  2. 评论数据库存放在 /lzcapp/var/db，配置文件在
+     /lzcapp/var/config/isso.cfg（首次启动自动从包内模板生成）。
+  3. 要在你自己的网站上嵌入评论，请先把配置文件中的 host 改成
+     你的站点域名并重启应用，然后按官方文档在页面里引入嵌入代码：
+     https://isso-comments.de/docs/reference/client-config/
+  4. 管理后台无第三方 OAuth 依赖；本包不加 public_path，
+     由平台入口鉴权兜底。
+
+  说明：
+  - 本包未做实机验证，功能以官方文档为准：https://isso-comments.de/docs/
+  - 许可证 MIT，随包分发，见 /package-licenses/。

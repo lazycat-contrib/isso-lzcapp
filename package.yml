@@ -1,0 +1,18 @@
+package: community.lazycat.app.isso
+name: Isso
+version: 0.14.0
+description: "Lightweight self-hosted commenting server for static sites: Markdown, moderation, RSS and a password-protected admin panel."
+min_os_version: "1.5.0"
+homepage: https://isso-comments.de
+author: isso-comments
+license: MIT
+permissions:
+  required:
+    - net.internet
+locales:
+  zh:
+    name: Isso
+    description: "面向静态网站的轻量自托管评论系统：Markdown 支持、审核队列、RSS 通知与口令保护的管理后台。"
+  en:
+    name: Isso
+    description: "Lightweight self-hosted commenting server for static sites: Markdown, moderation, RSS and a password-protected admin panel."
